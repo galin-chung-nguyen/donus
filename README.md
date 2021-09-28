@@ -1,2 +1,6 @@
-# donus
-Donus is a free web-based messaging app for everyone. Feel free to use it!
+# Donus
+Donus is a free web-based messaging app for everyone. It's built using React, Redux and Firebase storage. Feel free to use it!
+
+You can check it out here: https://donus-chat.web.app/
+
+**Have a good day!**
