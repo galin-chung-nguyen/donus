@@ -5,12 +5,16 @@ import DonutLargeIcon from '@material-ui/icons/DonutLarge';
 import ChatIcon from '@material-ui/icons/Chat';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import SearchOutlined from '@material-ui/icons/SearchOutlined';
+import AddIcon from '@mui/icons-material/Add';
 import SideBarChat from './SidebarChat';
 
 // firebase
 import db from '../firebase/firebase-config';
+import firebase from "firebase";
 import { useSelector, useDispatch } from 'react-redux';
 import { setRoomListAction } from '../redux/actions';
+
+const currentRoomsData = {};
 
 function Sidebar() {
 
@@ -26,26 +30,68 @@ function Sidebar() {
             let unsubscribe = db.collection("rooms").doc(roomId).onSnapshot(roomSnapshot => {
                 // stop listing to changes of this room
                 if (!rooms.includes(roomSnapshot.id)) {
+                    delete currentRoomsData[roomId];
                     unsubscribe();
                 } else {
-                    let newRoomData = { ... roomData };
-                    newRoomData[roomId] = roomSnapshot.data();
-                    setRoomData(newRoomData);
+                    currentRoomsData[roomId] = roomSnapshot.data();
+                    setRoomData({...currentRoomsData});
                 }
-            }) 
+            })
 
             return false;
         });
-    },[rooms]);
+    }, [rooms]);
 
     useEffect(async () => {
-        
+
         user.userRef.onSnapshot(userSnapshot => {
             setRooms(userSnapshot.data().chat.map(x => x.id));
         });
 
         return
     }, []);
+
+    const createChat = async () => {
+        let roomName = prompt("Please enter name for the new chat");
+
+        if (roomName) {
+            // do something
+            roomName = roomName.replace(/^\s+|\s+$/gm, '');
+
+            if (roomName.length <= 0 || roomName.length > 100) {
+                alert('Room name cannot be empty or too long!');
+                return;
+            }
+
+            // create new room
+            let newRoomRef = await db.collection("rooms").add({
+                creater: user.userRef,
+                name: roomName,
+                dateCreated: firebase.firestore.FieldValue.serverTimestamp(),
+                type: "group_chat"
+            });
+
+            // set current user as admin of the new room
+            await newRoomRef.collection('members').add({
+                memRef: user.userRef,
+                role: "admin"
+            });
+
+            console.log(newRoomRef)
+
+            // add this chat room into the chatroom list of current user
+            await user.userRef.update({
+                chat: firebase.firestore.FieldValue.arrayUnion(newRoomRef)
+            });
+
+            console.log('create new Room ', roomName, ' successfully!!!')
+        }
+    }
+
+    useEffect(() => {
+        console.log(roomData);
+    },[roomData]);
+
 
     return (
         <div className="sidebar">
@@ -54,8 +100,8 @@ function Sidebar() {
                     <Avatar src={user?.photoURL} />
                 </div>
                 <div className="sidebar__headerRight">
-                    <IconButton>
-                        <DonutLargeIcon />
+                    <IconButton onClick={createChat}>
+                        <AddIcon />
                     </IconButton>
 
                     <IconButton>
@@ -69,11 +115,10 @@ function Sidebar() {
             <div className="sidebar__search">
                 <div className="sidebar__searchContainer">
                     <SearchOutlined />
-                    <input type="text" placeholder='Search or start new chat' />
+                    <input type="text" placeholder='Search Donus' />
                 </div>
             </div>
             <div className="sidebar__chats">
-                <SideBarChat addNewChat={true} />
                 {rooms.map(roomId => (
                     <SideBarChat key={roomId} id={roomId} name={roomData[roomId] ? roomData[roomId].name : ""} />
                 ))}
