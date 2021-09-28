@@ -1,13 +1,15 @@
 import '../assets/css/Mainchat.scss';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { Avatar, IconButton } from '@material-ui/core';
 import SearchOutlined from '@material-ui/icons/SearchOutlined';
 import AttachFileIcon from '@material-ui/icons/AttachFile';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
-import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon';
+import AddReactionIcon from '@mui/icons-material/AddReaction';
 import MicIcon from '@material-ui/icons/Mic';
+import SendIcon from '@mui/icons-material/Send';
+import ImageIcon from '@mui/icons-material/Image';
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import Grow from "@material-ui/core/Grow";
 import Paper from "@material-ui/core/Paper";
@@ -36,15 +38,15 @@ import { setMainChatInfoAction } from '../redux/actions';
 function InviteFriendDiaglog(props) {
     const mainChatInfo = useSelector(state => state.mainChat);
 
-    console.log(mainChatInfo);
+    console.info(mainChatInfo);
 
     const inviteLink = window.location.origin + "/invite/" + mainChatInfo.id;
 
     return (
-        <Dialog className = 'invite_friend_dialog' onClose={() => props.handleToggleDialog(props.id, false)} aria-labelledby="simple-dialog-title" open={props.open}>
+        <Dialog className='invite_friend_dialog' onClose={() => props.handleToggleDialog(props.id, false)} aria-labelledby="simple-dialog-title" open={props.open}>
             <DialogTitle>Invite friends to {mainChatInfo.name}</DialogTitle>
             <List>
-                <Typography className = 'dialog_title' variant="subtitle2" gutterBottom style = {{padding: "0 20px"}}>
+                <Typography className='dialog_title' variant="subtitle2" gutterBottom style={{ padding: "0 20px" }}>
                     Send this invite link to a friend
                 </Typography>
                 <ListItem autoFocus>
@@ -138,6 +140,7 @@ function MainChat() {
     const { roomId } = useParams();
     const [roomName, setRoomName] = useState("");
     const [messages, setMessages] = useState([]);
+    const chatBodyRef = useRef(null);
     const [memInfoList, setMemInfoList] = useState({});
     const dispatch = useDispatch();
 
@@ -181,17 +184,43 @@ function MainChat() {
         setAvaSeed(Math.random());
     }, [roomId]);
 
+    useEffect(() => {
+        console.info(messages);
+    }, [messages]);
+
     const sendMessage = (e) => {
-        console.log(msgInput)
-        console.log(user.userRef)
         e.preventDefault();
+        let msg = msgInput.trim();
+        if (msg == '') return;
 
         db.collection("rooms").doc(roomId).collection("messages").add({
-            message: msgInput,
+            message: msg,
             sender: user.userRef,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         setMsgInput("");
+    }
+
+    useEffect(() => {
+        if (chatBodyRef) {
+            chatBodyRef.current.addEventListener('DOMNodeInserted', event => {
+                const { currentTarget: target } = event;
+                target.scroll({ top: target.scrollHeight, behavior: 'smooth' });
+            });
+        }
+    }, [])
+
+    const formatMsgTimeStamp = (d) => {
+        if(!(d instanceof Date)) return ""
+
+        var hours = d.getHours();
+        var minutes = d.getMinutes();
+        var ampm = hours >= 12 ? "PM" : "AM";
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour "0" should be "12"
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        var strTime = hours + ":" + minutes + " " + ampm;
+        return d.getDate() + " " + new Intl.DateTimeFormat('en', { month: 'short' }).format(d) + " " + d.getFullYear() + " " + strTime;
     }
 
     return (
@@ -214,26 +243,38 @@ function MainChat() {
                     <MoreVertMenu />
                 </div>
             </div>
-            <div className="chat__body">
+            <div className="chat__body" ref={chatBodyRef}>
                 {
                     messages.map(message => (
-                        <p className={"chat__message " + (message.sender.id == user.uid && "chat__receiver")}>
-                            <span className="chat__name">{memInfoList.hasOwnProperty(message.sender.id) ? memInfoList[message.sender.id].name : ""}</span>
-                            {message.message}
-                            <span className="chat__timestamp">{
-                                new Date(message.timestamp?.toDate()).toString()
-                            }</span>
-                        </p>
+                        <div className={"chat__message " + (message.sender.id == user.uid && "chat__receiver")}>
+                            <p className="message__content">
+                                {message.message}
+                            </p>
+                            <div className="message__info">
+                                <span className="message__name">{memInfoList.hasOwnProperty(message.sender.id) ? memInfoList[message.sender.id].name : ""}</span>
+                                <span className="message__timestamp">{
+                                    formatMsgTimeStamp(message.timestamp?.toDate())
+                                }</span>
+                            </div>
+                        </div>
                     ))
                 }
             </div>
             <div className="chat__footer">
-                <InsertEmoticonIcon />
+                <IconButton size="small">
+                    <AddReactionIcon />
+                </IconButton>
+                <IconButton size="small">
+                    <ImageIcon />
+                </IconButton>
                 <form onSubmit={sendMessage}>
                     <input type="text" placeholder="Type your message here ..." value={msgInput} onChange={(e) => setMsgInput(e.target.value)} />
                     <button type="submit">Send</button>
                 </form>
-                <MicIcon />
+
+                <IconButton size="small">
+                    <MicIcon />
+                </IconButton>
             </div>
         </div>
     )

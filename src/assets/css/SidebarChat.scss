@@ -1,6 +1,6 @@
-.App .app_body .sidebar .sidebar__chats{
-    a{
-        text-decoration: none!important;
+.App .app_body .sidebar .sidebar__chats {
+    a {
+        text-decoration: none !important;
         color: black;
     }
     .sidebarChat {
@@ -17,9 +17,14 @@
                 font-size: 16px;
                 margin-bottom: 8px;
             }
+            p {
+                color: rgb(175 175 175);
+                font-style: italic;
+                font-size: 15px;
+            }
         }
     }
-    
+
     .sidebarChat:hover {
         background: #ebebeb;
     }
