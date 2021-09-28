@@ -1,0 +1,6 @@
+git set up stream ...
+git checkout main
+git rebase origin/main
+=> resolve all conflicts
+git rebase --continue
+git push
