@@ -151,6 +151,18 @@ function MainChat() {
     useEffect(async () => {
         if (roomId) {
 
+            let roomOfUser = false;
+            
+            for(let i = 0; i < user.userInfo.chat.length; ++i){
+                if(user.userInfo.chat[i].id == roomId){
+                    roomOfUser = true;
+                }
+            }
+
+            if(!roomOfUser){
+                return 
+            }
+
             let roomRef = db.collection("rooms").doc(roomId);
 
             if (!(await roomRef.get()).exists) {

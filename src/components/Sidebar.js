@@ -40,6 +40,34 @@ import { setRoomListAction } from '../redux/actions';
 
 const currentRoomsData = {};
 
+
+function InviteFriendDiaglog(props) {
+    const mainChatInfo = useSelector(state => state.mainChat);
+
+    console.info(mainChatInfo);
+
+    const inviteLink = window.location.origin + "/invite/" + mainChatInfo.id;
+
+    return (
+        <Dialog className='invite_friend_dialog' onClose={() => props.handleToggleDialog(props.id, false)} aria-labelledby="simple-dialog-title" open={props.open}>
+            <DialogTitle>Invite friends to {mainChatInfo.name}</DialogTitle>
+            <List>
+                <Typography className='dialog_title' variant="subtitle2" gutterBottom style={{ padding: "0 20px" }}>
+                    Send this invite link to a friend
+                </Typography>
+                <ListItem autoFocus>
+                    <ListItemAvatar>
+                        <Avatar>
+                            <AddIcon />
+                        </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary={inviteLink} />
+                </ListItem>
+            </List>
+        </Dialog>
+    )
+}
+
 function PreferencesMenu() {
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef(null);
@@ -53,11 +81,8 @@ function PreferencesMenu() {
     };
 
     const [openDialog, setOpenDialog] = useState({
-        'notification-settings': false,
-        'invite-people': false,
-        'change-nickname': false,
-        'members': false,
-        'leave-chat': false
+        'logout': false,
+        'invite-people': false
     });
 
     const handleToggleDialog = (dialogId, newState = true) => {
@@ -96,17 +121,15 @@ function PreferencesMenu() {
                         <Paper>
                             <ClickAwayListener onClickAway={handleClose}>
                                 <MenuList autoFocusItem={open} id="menu-list-grow">
-                                    <MenuItem onClick={() => { handleClose(); handleToggleDialog('notification-settings'); }}>Notification settings</MenuItem>
-                                    <MenuItem onClick={() => { handleClose(); handleToggleDialog('change-nickname'); }}>Change nickname</MenuItem>
-                                    <MenuItem onClick={() => { handleClose(); handleToggleDialog('members'); }}>Members</MenuItem>
                                     <MenuItem onClick={() => { handleClose(); handleToggleDialog('invite-people'); }}>Invite people</MenuItem>
-                                    <MenuItem onClick={() => { handleClose(); handleToggleDialog('leave-chat'); }}>Leave chat</MenuItem>
+                                    <MenuItem onClick={() => { handleClose(); handleToggleDialog('logout'); }}>Log out</MenuItem>
                                 </MenuList>
                             </ClickAwayListener>
                         </Paper>
                     </Grow>
                 )}
             </Popper>
+            {openDialog['logout'] && <Redirect to = '/logout' />}
             <InviteFriendDiaglog id='invite-people' open={openDialog['invite-people']} handleToggleDialog={handleToggleDialog} />
         </>
     );

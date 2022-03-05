@@ -23,35 +23,34 @@ function InviteToRoom() {
 
     console.log(roomInfo);
 
-    const joinRoom = () => {
-        if (user && user.userRef) {
-            user.userRef.get().then(async (snapshot) => {
+    console.log(user)
 
-                let joined = false;
-                for (let i = 0; i < snapshot.data().chat.length; ++i) {
-                    if (snapshot.data().chat[i].id == roomId) {
-                        joined = true;
-                        break;
-                    }
+    const joinRoom = async () => {
+        if (user && user.userRef && user.userInfo) {
+            let joined = false;
+            for (let i = 0; i < user.userInfo.chat.length; ++i) {
+                if (user.userInfo.chat[i].id == roomId) {
+                    joined = true;
+                    break;
                 }
+            }
+            if (!joined) {
                 let roomRef = db.collection("rooms").doc(roomId);
-                if (!joined) {
-                    // now join the room
-                    await roomRef.collection('members').add({
-                        memRef: user.userRef,
-                        role: "normal"
-                    });
+                // now join the room
+                await roomRef.collection('members').add({
+                    memRef: user.userRef,
+                    role: "normal"
+                });
 
-                    // add this chat room into the chatroom list of current user
-                    await user.userRef.update({
-                        chat: firebase.firestore.FieldValue.arrayUnion(roomRef)
-                    });
-                }else{
-                    alert('you have joined this room already!')
-                }
-                
-                window.location = "/rooms/" + roomId;
-            });
+                // add this chat room into the chatroom list of current user
+                await user.userRef.update({
+                    chat: firebase.firestore.FieldValue.arrayUnion(roomRef)
+                });
+            } else {
+                alert('you have joined this room already!')
+            }
+
+            window.location = "/rooms/" + roomId;
         } else {
             alert('You should sign in first!!!');
         }
