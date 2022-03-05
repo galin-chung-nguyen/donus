@@ -1,12 +1,36 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../assets/css/Sidebar.scss';
 import { Avatar, IconButton } from '@material-ui/core';
-import DonutLargeIcon from '@material-ui/icons/DonutLarge';
 import ChatIcon from '@material-ui/icons/Chat';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import SearchOutlined from '@material-ui/icons/SearchOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import SideBarChat from './SidebarChat';
+import { useParams, useLocation, Redirect } from 'react-router-dom';
+
+import AttachFileIcon from '@material-ui/icons/AttachFile';
+import AddReactionIcon from '@mui/icons-material/AddReaction';
+import MicIcon from '@material-ui/icons/Mic';
+import SendIcon from '@mui/icons-material/Send';
+import ImageIcon from '@mui/icons-material/Image';
+import ClickAwayListener from "@material-ui/core/ClickAwayListener";
+import Grow from "@material-ui/core/Grow";
+import Paper from "@material-ui/core/Paper";
+import Popper from "@material-ui/core/Popper";
+import MenuItem from "@material-ui/core/MenuItem";
+import MenuList from "@material-ui/core/MenuList";
+
+import Button from '@material-ui/core/Button';
+import { makeStyles } from '@material-ui/core/styles';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import ListItemText from '@material-ui/core/ListItemText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Dialog from '@material-ui/core/Dialog';
+import PersonIcon from '@material-ui/icons/Person';
+import Typography from '@material-ui/core/Typography';
+import { blue } from '@material-ui/core/colors';
 
 // firebase
 import db from '../firebase/firebase-config';
@@ -15,6 +39,78 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setRoomListAction } from '../redux/actions';
 
 const currentRoomsData = {};
+
+function PreferencesMenu() {
+    const [open, setOpen] = React.useState(false);
+    const anchorRef = React.useRef(null);
+
+    const handleToggle = () => {
+        setOpen(true);
+    };
+
+    const handleClose = (event) => {
+        setOpen(false);
+    };
+
+    const [openDialog, setOpenDialog] = useState({
+        'notification-settings': false,
+        'invite-people': false,
+        'change-nickname': false,
+        'members': false,
+        'leave-chat': false
+    });
+
+    const handleToggleDialog = (dialogId, newState = true) => {
+        let newOpenDialog = { ...openDialog };
+        newOpenDialog[dialogId] = newState;
+        setOpenDialog(newOpenDialog);
+    }
+
+    return (
+        <>
+            <IconButton ref={anchorRef}
+                aria-controls={open ? "chat-utils-btn" : undefined}
+                aria-haspopup="true"
+                onClick={handleToggle}
+                className="chat_utils_btn"
+            >
+                <MoreVertIcon />
+            </IconButton>
+            <Popper
+                className="chat_utils_menu"
+                open={open}
+                anchorEl={anchorRef.current}
+                role={undefined}
+                transition
+                disablePortal
+                placement="bottom-end"
+            >
+                {({ TransitionProps, placement }) => (
+                    <Grow
+                        {...TransitionProps}
+                        style={{
+                            transformOrigin:
+                                placement === "bottom" ? "right top" : "right bottom"
+                        }}
+                    >
+                        <Paper>
+                            <ClickAwayListener onClickAway={handleClose}>
+                                <MenuList autoFocusItem={open} id="menu-list-grow">
+                                    <MenuItem onClick={() => { handleClose(); handleToggleDialog('notification-settings'); }}>Notification settings</MenuItem>
+                                    <MenuItem onClick={() => { handleClose(); handleToggleDialog('change-nickname'); }}>Change nickname</MenuItem>
+                                    <MenuItem onClick={() => { handleClose(); handleToggleDialog('members'); }}>Members</MenuItem>
+                                    <MenuItem onClick={() => { handleClose(); handleToggleDialog('invite-people'); }}>Invite people</MenuItem>
+                                    <MenuItem onClick={() => { handleClose(); handleToggleDialog('leave-chat'); }}>Leave chat</MenuItem>
+                                </MenuList>
+                            </ClickAwayListener>
+                        </Paper>
+                    </Grow>
+                )}
+            </Popper>
+            <InviteFriendDiaglog id='invite-people' open={openDialog['invite-people']} handleToggleDialog={handleToggleDialog} />
+        </>
+    );
+}
 
 function Sidebar() {
 
@@ -107,9 +203,7 @@ function Sidebar() {
                     <IconButton>
                         <ChatIcon />
                     </IconButton>
-                    <IconButton>
-                        <MoreVertIcon />
-                    </IconButton>
+                    <PreferencesMenu />
                 </div>
             </div>
             <div className="sidebar__search">

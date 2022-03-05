@@ -8,10 +8,11 @@ import Logout from './Logout';
 import {
     BrowserRouter as Router,
     Route,
+    useLocation,
     Link,
     Switch,
     Redirect,
-    useLocation
+    withRouter
 } from "react-router-dom";
 
 // redux
@@ -23,6 +24,7 @@ import firebase from "firebase";
 
 function App() {
     const user = useSelector(state => state.user);
+    const userRef = useSelector(state => state.userRef);
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
 
@@ -54,7 +56,8 @@ function App() {
                 // update user info in the data layer
                 dispatch(setUserInfoAction({
                     ...user,
-                    userRef: userRef
+                    userRef: userRef,
+                    userInfo: userInfo.data()
                 }));
             } else {
                 console.log('not logged in yet');
@@ -73,15 +76,15 @@ function App() {
                     </Route>
                     {!loading && (user ?
                         <div className="app_body">
-                            <Route path="/app">
-                                App
-                            </Route>
                             <Route path="/rooms/:roomId">
                                 <Sidebar />
                                 <MainChat />
                             </Route>
                             <Route exact path="/logout">
                                 <Logout />
+                            </Route>
+                            <Route path = "*">
+                                <Redirect to = "/rooms/welcome" />    
                             </Route>
                         </div>
                         :

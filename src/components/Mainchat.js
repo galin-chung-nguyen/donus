@@ -1,6 +1,6 @@
 import '../assets/css/Mainchat.scss';
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation, Redirect } from 'react-router-dom';
 
 import { Avatar, IconButton } from '@material-ui/core';
 import SearchOutlined from '@material-ui/icons/SearchOutlined';
@@ -144,6 +144,8 @@ function MainChat() {
     const [memInfoList, setMemInfoList] = useState({});
     const dispatch = useDispatch();
 
+    const [wrongRoomId, setWrongRoomId] = useState(false);
+
     const user = useSelector(state => state.user);
 
     useEffect(async () => {
@@ -151,7 +153,10 @@ function MainChat() {
 
             let roomRef = db.collection("rooms").doc(roomId);
 
-            if (!(await roomRef.get()).exists) return
+            if (!(await roomRef.get()).exists) {
+                setWrongRoomId(true);
+                return;
+            }
 
             roomRef.onSnapshot((snapshot) => {
                 setRoomName(snapshot.data().name);
@@ -210,8 +215,13 @@ function MainChat() {
         }
     }, [])
 
+    useEffect(() => {
+        console.log('KAKSDF')
+        console.log(user)
+    }, [user]);
+
     const formatMsgTimeStamp = (d) => {
-        if(!(d instanceof Date)) return ""
+        if (!(d instanceof Date)) return ""
 
         var hours = d.getHours();
         var minutes = d.getMinutes();
@@ -224,59 +234,63 @@ function MainChat() {
     }
 
     return (
-        <div className="main_chat">
-            <div className="chat__header">
-                <Avatar src={`https://avatars.dicebear.com/api/bottts/${avaSeed}.svg`} />
-                <div className="chat__headerInfo">
-                    <h3>{roomName}</h3>
-                    <p>Last seen at ...</p>
-                </div>
+        <>
 
-                <div className="chat__headerRight">
-                    <IconButton>
-                        <SearchOutlined />
-                    </IconButton>
+            {wrongRoomId && user.userInfo.chat && user.userInfo.chat.length > 0 && <Redirect to={"/rooms/" + user.userInfo.chat[0].id} />}
+            <div className="main_chat">
+                <div className="chat__header">
+                    <Avatar src={`https://avatars.dicebear.com/api/bottts/${avaSeed}.svg`} />
+                    <div className="chat__headerInfo">
+                        <h3>{roomName}</h3>
+                        <p>Last seen at ...</p>
+                    </div>
 
-                    <IconButton>
-                        <AttachFileIcon />
-                    </IconButton>
-                    <MoreVertMenu />
+                    <div className="chat__headerRight">
+                        <IconButton>
+                            <SearchOutlined />
+                        </IconButton>
+
+                        <IconButton>
+                            <AttachFileIcon />
+                        </IconButton>
+                        <MoreVertMenu />
+                    </div>
                 </div>
-            </div>
-            <div className="chat__body" ref={chatBodyRef}>
-                {
-                    messages.map(message => (
-                        <div className={"chat__message " + (message.sender.id == user.uid && "chat__receiver")}>
-                            <p className="message__content">
-                                {message.message}
-                            </p>
-                            <div className="message__info">
-                                <span className="message__name">{memInfoList.hasOwnProperty(message.sender.id) ? memInfoList[message.sender.id].name : ""}</span>
-                                <span className="message__timestamp">{
-                                    formatMsgTimeStamp(message.timestamp?.toDate())
-                                }</span>
+                <div className="chat__body" ref={chatBodyRef}>
+                    {
+                        messages.map(message => (
+                            <div className={"chat__message " + (message.sender.id == user.uid && "chat__receiver")}>
+                                <p className="message__content">
+                                    {message.message}
+                                </p>
+                                <div className="message__info">
+                                    <span className="message__name">{memInfoList.hasOwnProperty(message.sender.id) ? memInfoList[message.sender.id].name : ""}</span>
+                                    <span className="message__timestamp">{
+                                        formatMsgTimeStamp(message.timestamp?.toDate())
+                                    }</span>
+                                </div>
                             </div>
-                        </div>
-                    ))
-                }
-            </div>
-            <div className="chat__footer">
-                <IconButton size="small">
-                    <AddReactionIcon />
-                </IconButton>
-                <IconButton size="small">
-                    <ImageIcon />
-                </IconButton>
-                <form onSubmit={sendMessage}>
-                    <input type="text" placeholder="Type your message here ..." value={msgInput} onChange={(e) => setMsgInput(e.target.value)} />
-                    <button type="submit">Send</button>
-                </form>
+                        ))
+                    }
+                </div>
+                <div className="chat__footer">
+                    <IconButton size="small">
+                        <AddReactionIcon />
+                    </IconButton>
+                    <IconButton size="small">
+                        <ImageIcon />
+                    </IconButton>
+                    <form onSubmit={sendMessage}>
+                        <input type="text" placeholder="Type your message here ..." value={msgInput} onChange={(e) => setMsgInput(e.target.value)} />
+                        <button type="submit">Send</button>
+                    </form>
 
-                <IconButton size="small">
-                    <MicIcon />
-                </IconButton>
+                    <IconButton size="small">
+                        <MicIcon />
+                    </IconButton>
+                </div>
             </div>
-        </div>
+        </>
     )
 }
 
