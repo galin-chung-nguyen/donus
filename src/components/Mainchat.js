@@ -36,103 +36,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setMainChatInfoAction } from '../redux/actions';
 import ChatSettings from './ChatSettings';
 
-function InviteFriendDiaglog(props) {
-    const mainChatInfo = useSelector(state => state.mainChat);
-
-    // console.info(mainChatInfo);
-
-    const inviteLink = window.location.origin + "/invite/" + mainChatInfo.id;
-
-    return (
-        <Dialog className='invite_friend_dialog' onClose={() => props.handleToggleDialog(props.id, false)} aria-labelledby="simple-dialog-title" open={props.open}>
-            <DialogTitle>Invite friends to {mainChatInfo.name}</DialogTitle>
-            <List>
-                <Typography className='dialog_title' variant="subtitle2" gutterBottom style={{ padding: "0 20px" }}>
-                    Send this invite link to a friend
-                </Typography>
-                <ListItem autoFocus>
-                    <ListItemAvatar>
-                        <Avatar>
-                            <AddIcon />
-                        </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText primary={inviteLink} />
-                </ListItem>
-            </List>
-        </Dialog>
-    )
-}
-function MoreVertMenu() {
-    const [open, setOpen] = React.useState(false);
-    const anchorRef = React.useRef(null);
-
-    const handleToggle = () => {
-        setOpen(true);
-    };
-
-    const handleClose = (event) => {
-        setOpen(false);
-    };
-
-    const [openDialog, setOpenDialog] = useState({
-        'notification-settings': false,
-        'invite-people': false,
-        'change-nickname': false,
-        'members': false,
-        'leave-chat': false
-    });
-
-    const handleToggleDialog = (dialogId, newState = true) => {
-        let newOpenDialog = { ...openDialog };
-        newOpenDialog[dialogId] = newState;
-        setOpenDialog(newOpenDialog);
-    }
-
-    return (
-        <>
-            <IconButton ref={anchorRef}
-                aria-controls={open ? "chat-utils-btn" : undefined}
-                aria-haspopup="true"
-                onClick={handleToggle}
-                className="chat_utils_btn"
-            >
-                <MoreVertIcon />
-            </IconButton>
-            <Popper
-                className="chat_utils_menu"
-                open={open}
-                anchorEl={anchorRef.current}
-                role={undefined}
-                transition
-                disablePortal
-                placement="bottom-end"
-            >
-                {({ TransitionProps, placement }) => (
-                    <Grow
-                        {...TransitionProps}
-                        style={{
-                            transformOrigin:
-                                placement === "bottom" ? "right top" : "right bottom"
-                        }}
-                    >
-                        <Paper>
-                            <ClickAwayListener onClickAway={handleClose}>
-                                <MenuList autoFocusItem={open} id="menu-list-grow">
-                                    <MenuItem onClick={() => { handleClose(); handleToggleDialog('notification-settings'); }}>Notification settings</MenuItem>
-                                    <MenuItem onClick={() => { handleClose(); handleToggleDialog('change-nickname'); }}>Change nickname</MenuItem>
-                                    <MenuItem onClick={() => { handleClose(); handleToggleDialog('members'); }}>Members</MenuItem>
-                                    <MenuItem onClick={() => { handleClose(); handleToggleDialog('invite-people'); }}>Invite people</MenuItem>
-                                    <MenuItem onClick={() => { handleClose(); handleToggleDialog('leave-chat'); }}>Leave chat</MenuItem>
-                                </MenuList>
-                            </ClickAwayListener>
-                        </Paper>
-                    </Grow>
-                )}
-            </Popper>
-            <InviteFriendDiaglog id='invite-people' open={openDialog['invite-people']} handleToggleDialog={handleToggleDialog} />
-        </>
-    );
-}
 
 function MainChat() {
 
@@ -148,6 +51,9 @@ function MainChat() {
     const [wrongRoomId, setWrongRoomId] = useState(false);
 
     const user = useSelector(state => state.user);
+
+    // chat settings
+    const [openChatSettings, setOpenChatSettings] = React.useState(true);
 
     console.log(user)
 
@@ -282,7 +188,12 @@ function MainChat() {
                             <IconButton>
                                 <AttachFileIcon />
                             </IconButton>
-                            <MoreVertMenu />
+                            <IconButton
+                                onClick={() => setOpenChatSettings(!openChatSettings)}
+                                className="chat_utils_btn"
+                            >
+                                <MoreVertIcon />
+                            </IconButton>
                         </div>
                     </div>
                     <div className="chat__body" ref={chatBodyRef}>
@@ -303,18 +214,18 @@ function MainChat() {
                                             </div>
                                         </div>
                                     )
-                                else if (message.type == "change-nickname"){
-                                    try{
+                                else if (message.type == "change-nickname") {
+                                    try {
                                         let sender = memInfoList.hasOwnProperty(message.sender.id) ? memInfoList[message.sender.id].name : ""
-                                        let receiverText = (<>nickname <span className = "message__name">{(message.sender.id == message.receiver.id ? "" : "of " + memInfoList.hasOwnProperty(message.sender.id) ? memInfoList[message.receiver.id].name : "")}</span></>)
-    
-                                        if(message.sender.id == user.uid) sender = "You"
-                                        if(message.receiver.id == user.uid) receiverText = "your nickname"
-                                        let senderText = (<span className = "message__name">{sender}</span>)
-                                        let nicknameText = (<span className = "message__name">{message.message}</span>)
-    
+                                        let receiverText = (<>nickname <span className="message__name">{(message.sender.id == message.receiver.id ? "" : "of " + memInfoList.hasOwnProperty(message.sender.id) ? memInfoList[message.receiver.id].name : "")}</span></>)
+
+                                        if (message.sender.id == user.uid) sender = "You"
+                                        if (message.receiver.id == user.uid) receiverText = "your nickname"
+                                        let senderText = (<span className="message__name">{sender}</span>)
+                                        let nicknameText = (<span className="message__name">{message.message}</span>)
+
                                         return (
-                                            <div className={"notification_message " + (message.sender.id == user.uid && "chat__receiver")}>
+                                            <div className={"notification_message"}>
                                                 <p className="message__content">
                                                     {senderText} has changed {receiverText} to {nicknameText}
                                                 </p>
@@ -325,7 +236,66 @@ function MainChat() {
                                                 </div>
                                             </div>
                                         )
-                                    }catch(err){}
+                                    } catch (err) {
+                                        console.log(err);
+                                    }
+                                } else if (message.type == "remove-member") {
+                                    console.log('alright cool ', message)
+                                    try {
+                                        let sender = memInfoList.hasOwnProperty(message.sender.id) ? memInfoList[message.sender.id].name : ""
+                                        let receiver = memInfoList.hasOwnProperty(message.receiver.id) ? memInfoList[message.receiver.id].name : ""
+
+                                        console.log(sender, ' ~ ', receiver);
+                                        if (message.sender.id == user.uid) sender = "You"
+                                        if (message.receiver.id == user.uid) receiver = "you"
+                                        let senderText = (<span className="message__name">{sender}</span>)
+                                        let receiverText = (<span className="message__name">{receiver}</span>)
+
+                                        return (
+                                            <div className={"notification_message"}>
+                                                <p className="message__content">{
+                                                    message.sender.id != message.receiver.id ? <>{senderText} has removed {receiverText} from the chat</>
+                                                        : (<>{senderText} has leaved the chat</>)
+                                                }
+                                                </p>
+                                                <div className="message__info">
+                                                    <span className="message__timestamp">{
+                                                        formatMsgTimeStamp(message.timestamp?.toDate())
+                                                    }</span>
+                                                </div>
+                                            </div>
+                                        )
+                                    } catch (err) {
+                                        console.log(err);
+                                    }
+                                } else if (message.type == "new-member") {
+                                    try {
+                                        let sender = memInfoList.hasOwnProperty(message.sender.id) ? memInfoList[message.sender.id].name : ""
+                                        let receiver = memInfoList.hasOwnProperty(message.receiver.id) ? memInfoList[message.receiver.id].name : ""
+
+                                        console.log(sender, ' ~ ', receiver);
+                                        if (message.sender.id == user.uid) sender = "You"
+                                        if (message.receiver.id == user.uid) receiver = "you"
+                                        let senderText = (<span className="message__name">{sender}</span>)
+                                        let receiverText = (<span className="message__name">{receiver}</span>)
+
+                                        return (
+                                            <div className="notification_message">
+                                                <p className="message__content">{
+                                                    message.sender.id != message.receiver.id ? <>{senderText} has added {receiverText} to the chat</>
+                                                        : (<>{senderText} has joined the chat</>)
+                                                }
+                                                </p>
+                                                <div className="message__info">
+                                                    <span className="message__timestamp">{
+                                                        formatMsgTimeStamp(message.timestamp?.toDate())
+                                                    }</span>
+                                                </div>
+                                            </div>
+                                        )
+                                    } catch (err) {
+                                        console.log(err);
+                                    }
                                 }
                             })
                         }
@@ -347,7 +317,7 @@ function MainChat() {
                         </IconButton>
                     </div>
                 </div>
-                <ChatSettings avaSeed={avaSeed} roomName={roomName} memInfoList={memInfoList} roomId={roomId} />
+                {openChatSettings && <ChatSettings avaSeed={avaSeed} roomName={roomName} memInfoList={memInfoList} roomId={roomId} />}
             </div>
 
         </>
