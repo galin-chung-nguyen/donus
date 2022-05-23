@@ -138,6 +138,7 @@ function PreferencesMenu() {
 function Sidebar() {
 
     const user = useSelector(state => state.user);
+
     //const rooms = useSelector(state => state.roomList);
     //const dispatch = useDispatch();
 
@@ -193,7 +194,8 @@ function Sidebar() {
             // set current user as admin of the new room
             await newRoomRef.collection('members').add({
                 memRef: user.userRef,
-                role: "admin"
+                role: "admin",
+                nickname: user.displayName
             });
 
             console.log(newRoomRef)

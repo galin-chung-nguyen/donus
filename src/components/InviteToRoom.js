@@ -39,7 +39,8 @@ function InviteToRoom() {
                 // now join the room
                 await roomRef.collection('members').add({
                     memRef: user.userRef,
-                    role: "normal"
+                    role: "normal",
+                    nickname: user.displayName
                 });
 
                 // add this chat room into the chatroom list of current user
