@@ -11,14 +11,14 @@
         align-items: center;
         padding: 20px;
     }
-    .list__chat__members {
+    .chat_settings_section {
         display: flex;
         flex-direction: column;
 
         .section_title_box {
             display: flex;
             flex-direction: row;
-            padding: 5px;
+            padding: 5px 5px 5px 15px;
             justify-content: space-between;
             align-items: center;
             .right_side_bar_section_title {
@@ -84,5 +84,11 @@
         .nickname_textbox {
             width: 300px;
         }
+    }
+}
+
+.confirm_leave_chat_dialog{
+    .dialogText_roomName{
+        font-weight: bold;
     }
 }

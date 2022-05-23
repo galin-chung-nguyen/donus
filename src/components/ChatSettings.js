@@ -11,17 +11,15 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Dialog from '@material-ui/core/Dialog';
-import PersonIcon from '@material-ui/icons/Person';
-import AddIcon from '@material-ui/icons/Add';
-import Typography from '@material-ui/core/Typography';
-import { blue } from '@material-ui/core/colors';
-import ButtonBase from '@material-ui/core/ButtonBase';
+import {
+    Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
+    Typography
+} from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import DoneIcon from '@material-ui/icons/Done';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
 import db from '../firebase/firebase-config';
 import firebase from "firebase";
@@ -45,6 +43,8 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/// Dialogs ///
 function ChangeFriendNicknameDialog(props) {
     const mainChatInfo = useSelector(state => state.mainChat);
     const user = useSelector(state => state.user);
@@ -52,7 +52,6 @@ function ChangeFriendNicknameDialog(props) {
     console.info(mainChatInfo);
     console.log(props)
 
-    const [open, setOpen] = useState(true);
     const [nickname, setNickname] = useState(props.nickname);
 
     const inviteLink = window.location.origin + "/invite/" + mainChatInfo.id;
@@ -93,7 +92,7 @@ function ChangeFriendNicknameDialog(props) {
     }
 
     return (
-        <Dialog onClose={() => { }} aria-labelledby="simple-dialog-title" open={props.open}>
+        <Dialog onClose={() => props.toggle(false)} aria-labelledby="simple-dialog-title" open={props.open}>
             <div className='edit_nickname_dialog'>
                 {/* <DialogTitle className='edit_nickname_member_name'>{}</DialogTitle> */}
                 <List>
@@ -111,8 +110,8 @@ function ChangeFriendNicknameDialog(props) {
                             placeholder={props.name}
                             value={nickname}
                             onChange={handleInputChange}
-                            onKeyDown = {(e) => {
-                                if(e.key == "Enter") handleSubmit(e)
+                            onKeyDown={(e) => {
+                                if (e.key == "Enter") handleSubmit(e)
                             }}
                         />
                         <IconButton onClick={handleSubmit}>
@@ -124,6 +123,82 @@ function ChangeFriendNicknameDialog(props) {
         </Dialog>
     )
 }
+
+function ConfirmLeaveChatDialog(props) {
+    const user = useSelector(state => state.user);
+
+    // console.log(db.collection("rooms").doc(props.roomId))
+    // console.log(user.userInfo.chat[1].id == props.roomId)
+
+    const handleClose = (leaveChat) => {
+        props.setOpen(false);
+
+        if (!leaveChat) return;
+
+        try {
+            let inRoomId = props.memInfoList[user.uid].inRoomId;
+
+            let roomRef = db.collection("rooms").doc(props.roomId);
+            roomRef.collection("members").doc(inRoomId).update({
+                role: "leaved" // # or banned
+            });
+
+            user.userRef.update({
+                chat: user.userInfo.chat.filter(x => x.id != props.roomId)
+            });
+
+            roomRef.collection("messages").add({
+                message: "remove-member",
+                sender: user.userRef,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                receiver: user.userRef,
+                type: "remove-member"
+            });
+        } catch (err) {
+            console.log('new error while leaving chat ');
+            console.log(err);
+        }
+    }
+
+    return (
+        <Dialog className="confirm_leave_chat_dialog" open={props.open} onClose={() => handleClose(false)}>
+            <DialogTitle>Leaving chat #{props.roomId ? props.roomId : ""}</DialogTitle>
+            <DialogContent>
+                <DialogContentText>
+                    Are you sure that you want to leave <span className="dialogText_roomName">{props.roomName ? props.roomName : ""}</span>?
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={() => handleClose(false)}>Cancel</Button>
+                <Button onClick={() => handleClose(true)}>Leave</Button>
+            </DialogActions>
+        </Dialog>
+    )
+}
+
+// function InviteFriendDiaglog(props) {
+
+//     const inviteLink = window.location.origin + "/invite/" + props.roomId;
+
+//     return (
+//         <Dialog className='invite_friend_dialog' onClose={() => props.handleToggleDialog(props.id, false)} aria-labelledby="simple-dialog-title" open={props.open}>
+//             <DialogTitle>Invite friends to {mainChatInfo.name}</DialogTitle>
+//             <List>
+//                 <Typography className='dialog_title' variant="subtitle2" gutterBottom style={{ padding: "0 20px" }}>
+//                     Send this invite link to a friend
+//                 </Typography>
+//                 <ListItem autoFocus>
+//                     <ListItemAvatar>
+//                         <Avatar>
+//                             <AddIcon />
+//                         </Avatar>
+//                     </ListItemAvatar>
+//                     <ListItemText primary={inviteLink} />
+//                 </ListItem>
+//             </List>
+//         </Dialog>
+//     )
+// }
 
 function ChatSettings({ avaSeed, roomName, memInfoList, roomId }) {
     const classes = useStyles();
@@ -137,10 +212,9 @@ function ChatSettings({ avaSeed, roomName, memInfoList, roomId }) {
         memRef: ""
     });
 
-    console.log('shit nwe changeFriendNicknameData')
-    console.log(changeFriendNicknameData)
+    // booleans to control dialogs visibility
     const [showChatMembers, setShowChatMembers] = useState(true);
-
+    const [showConfirmLeaveChat, setShowConfirmLeaveChat] = useState(false);
     //
     console.log(memInfoList)
 
@@ -151,27 +225,29 @@ function ChatSettings({ avaSeed, roomName, memInfoList, roomId }) {
                 "roomId": roomId,
             }} open={openChangeNicknameDialog} toggle={setOpenChangeNicknameDialog}
             />
+            <ConfirmLeaveChatDialog open={showConfirmLeaveChat} setOpen={setShowConfirmLeaveChat} {...{ "roomId": roomId, "roomName": roomName, "memInfoList": memInfoList }} />
             <div className="chat__header">
                 <Avatar src={`https://avatars.dicebear.com/api/bottts/${avaSeed}.svg`} className={classes.large} />
                 <div className="chat__headerInfo">
                     <h3>{roomName}</h3>
                 </div>
             </div>
-            <div className="list__chat__members">
+            <div className="chat_settings_section list__chat__members">
                 <div className='section_title_box'>
                     <h4 className='right_side_bar_section_title'>Chat members</h4>
-                        {
-                            showChatMembers ? <IconButton onClick={() => setShowChatMembers(false)}><ExpandLessIcon /></IconButton>
-                                : <IconButton onClick={() => setShowChatMembers(true)}><ExpandMoreIcon onClick={() => setShowChatMembers(true)} /></IconButton>
-                        }
+                    {
+                        showChatMembers ? <IconButton onClick={() => setShowChatMembers(false)}><ExpandLessIcon /></IconButton>
+                            : <IconButton onClick={() => setShowChatMembers(true)}><ExpandMoreIcon onClick={() => setShowChatMembers(true)} /></IconButton>
+                    }
                 </div>
                 {
                     showChatMembers &&
                     <div className='list_chat_member_container'>
 
                         {Object.keys(memInfoList).map(userId => (
+                            memInfoList[userId].role != 'leaved' &&
                             <div className="member__box" onClick={() => {
-                                setChangeFriendNicknameData({...memInfoList[userId]});
+                                setChangeFriendNicknameData({ ...memInfoList[userId] });
                                 setOpenChangeNicknameDialog(true);
                             }}>
                                 <Avatar src={memInfoList[userId].avatarUrl} />
@@ -183,6 +259,14 @@ function ChatSettings({ avaSeed, roomName, memInfoList, roomId }) {
                         ))}
                     </div>
                 }
+            </div>
+            <div className="chat_settings_section leave_group">
+                <div className='section_title_box'>
+                    <h4 className='right_side_bar_section_title'>Leave chat</h4>
+                    {
+                        <IconButton onClick={() => setShowConfirmLeaveChat(true)}><ExitToAppIcon /></IconButton>
+                    }
+                </div>
             </div>
         </div>
     )

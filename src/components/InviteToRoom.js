@@ -47,6 +47,15 @@ function InviteToRoom() {
                 await user.userRef.update({
                     chat: firebase.firestore.FieldValue.arrayUnion(roomRef)
                 });
+
+                // add a new member message
+                await roomRef.collection("messages").add({
+                    message: "new-member",
+                    sender: user.userRef,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    receiver: user.userRef,
+                    type: "new-member"
+                });
             } else {
                 alert('you have joined this room already!')
             }
