@@ -34,11 +34,12 @@ import db from '../firebase/firebase-config';
 import firebase from "firebase";
 import { useSelector, useDispatch } from 'react-redux';
 import { setMainChatInfoAction } from '../redux/actions';
+import ChatSettings from './ChatSettings';
 
 function InviteFriendDiaglog(props) {
     const mainChatInfo = useSelector(state => state.mainChat);
 
-    console.info(mainChatInfo);
+    // console.info(mainChatInfo);
 
     const inviteLink = window.location.origin + "/invite/" + mainChatInfo.id;
 
@@ -148,19 +149,21 @@ function MainChat() {
 
     const user = useSelector(state => state.user);
 
+    console.log(user)
+
     useEffect(async () => {
         if (roomId) {
 
             let roomOfUser = false;
-            
-            for(let i = 0; i < user.userInfo.chat.length; ++i){
-                if(user.userInfo.chat[i].id == roomId){
+
+            for (let i = 0; i < user.userInfo.chat.length; ++i) {
+                if (user.userInfo.chat[i].id == roomId) {
                     roomOfUser = true;
                 }
             }
 
-            if(!roomOfUser){
-                return 
+            if (!roomOfUser) {
+                return
             }
 
             let roomRef = db.collection("rooms").doc(roomId);
@@ -170,40 +173,56 @@ function MainChat() {
                 return;
             }
 
+            // update room information (name/id/ ...)
             roomRef.onSnapshot((snapshot) => {
                 setRoomName(snapshot.data().name);
                 dispatch(setMainChatInfoAction({ ...snapshot.data(), id: snapshot.id }));
             });
 
+            // listen to message history snapshots
             roomRef.collection("messages")
                 .orderBy('timestamp', 'asc')
                 .onSnapshot(snapshot => setMessages(snapshot.docs.map(doc => doc.data())));
 
+            // listen to member history snapshots
             roomRef.collection("members")
+                // for each member list snapshot
                 .onSnapshot((querySnapshot) => {
                     let listPromise = [];
 
+                    // create a list of promises to fetch information of all members
+                    let newMemInfoList = {};
+
                     querySnapshot.forEach((doc) => {
                         listPromise.push(doc.data().memRef.get());
+                        newMemInfoList[doc.data().memRef.id] = {
+                            role: doc.data().role,
+                            nickname: doc.data().nickname,
+                            inRoomId: doc.id,
+                            memRef: doc.data().memRef
+                        }
                     });
 
                     Promise.all(listPromise).then((results) => results.map(doc => ({ ...doc.data(), id: doc.id })))
                         .then(results => {
-
-                            let newMemInfoList = {};
                             for (let i = 0; i < results.length; ++i) {
-                                newMemInfoList[results[i].id] = results[i];
+                                newMemInfoList[results[i].id] = { ...newMemInfoList[results[i].id], ...results[i] };
                             }
-                            setMemInfoList({ ...memInfoList, ...newMemInfoList });
+
+                            setMemInfoList({ ...newMemInfoList });
                         });
                 })
         }
         setAvaSeed(Math.random());
     }, [roomId]);
 
+    // useEffect(() => {
+    //     console.info(messages);
+    // }, [messages]);
+
     useEffect(() => {
-        console.info(messages);
-    }, [messages]);
+        console.info(memInfoList);
+    }, [memInfoList])
 
     const sendMessage = (e) => {
         e.preventDefault();
@@ -213,7 +232,9 @@ function MainChat() {
         db.collection("rooms").doc(roomId).collection("messages").add({
             message: msg,
             sender: user.userRef,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            receiver: "all",
+            type: "text-message"
         });
         setMsgInput("");
     }
@@ -226,11 +247,6 @@ function MainChat() {
             });
         }
     }, [])
-
-    useEffect(() => {
-        console.log('KAKSDF')
-        console.log(user)
-    }, [user]);
 
     const formatMsgTimeStamp = (d) => {
         if (!(d instanceof Date)) return ""
@@ -249,59 +265,91 @@ function MainChat() {
         <>
 
             {wrongRoomId && user.userInfo.chat && user.userInfo.chat.length > 0 && <Redirect to={"/rooms/" + user.userInfo.chat[0].id} />}
-            <div className="main_chat">
-                <div className="chat__header">
-                    <Avatar src={`https://avatars.dicebear.com/api/bottts/${avaSeed}.svg`} />
-                    <div className="chat__headerInfo">
-                        <h3>{roomName}</h3>
-                        <p>Last seen at ...</p>
+            <div className="chat_container">
+                <div className="main_chat">
+                    <div className="chat__header">
+                        <Avatar src={`https://avatars.dicebear.com/api/bottts/${avaSeed}.svg`} />
+                        <div className="chat__headerInfo">
+                            <h3>{roomName}</h3>
+                            <p>Last seen at ...</p>
+                        </div>
+
+                        <div className="chat__headerRight">
+                            <IconButton>
+                                <SearchOutlined />
+                            </IconButton>
+
+                            <IconButton>
+                                <AttachFileIcon />
+                            </IconButton>
+                            <MoreVertMenu />
+                        </div>
                     </div>
-
-                    <div className="chat__headerRight">
-                        <IconButton>
-                            <SearchOutlined />
+                    <div className="chat__body" ref={chatBodyRef}>
+                        {
+                            messages.map(message => {
+                                console.log('new message ', message)
+                                if (message.type == "text-message")
+                                    return (
+                                        <div className={"chat__message " + (message.sender.id == user.uid && "chat__receiver")}>
+                                            <p className="message__content">
+                                                {message.message}
+                                            </p>
+                                            <div className="message__info">
+                                                <span className="message__name">{memInfoList.hasOwnProperty(message.sender.id) ? memInfoList[message.sender.id].nickname : ""}</span>
+                                                <span className="message__timestamp">{
+                                                    formatMsgTimeStamp(message.timestamp?.toDate())
+                                                }</span>
+                                            </div>
+                                        </div>
+                                    )
+                                else if (message.type == "change-nickname"){
+                                    try{
+                                        let sender = memInfoList.hasOwnProperty(message.sender.id) ? memInfoList[message.sender.id].name : ""
+                                        let receiverText = (<>nickname <span className = "message__name">{(message.sender.id == message.receiver.id ? "" : "of " + memInfoList.hasOwnProperty(message.sender.id) ? memInfoList[message.receiver.id].name : "")}</span></>)
+    
+                                        if(message.sender.id == user.uid) sender = "You"
+                                        if(message.receiver.id == user.uid) receiverText = "your nickname"
+                                        let senderText = (<span className = "message__name">{sender}</span>)
+                                        let nicknameText = (<span className = "message__name">{message.message}</span>)
+    
+                                        return (
+                                            <div className={"notification_message " + (message.sender.id == user.uid && "chat__receiver")}>
+                                                <p className="message__content">
+                                                    {senderText} has changed {receiverText} to {nicknameText}
+                                                </p>
+                                                <div className="message__info">
+                                                    <span className="message__timestamp">{
+                                                        formatMsgTimeStamp(message.timestamp?.toDate())
+                                                    }</span>
+                                                </div>
+                                            </div>
+                                        )
+                                    }catch(err){}
+                                }
+                            })
+                        }
+                    </div>
+                    <div className="chat__footer">
+                        <IconButton size="small">
+                            <AddReactionIcon />
                         </IconButton>
-
-                        <IconButton>
-                            <AttachFileIcon />
+                        <IconButton size="small">
+                            <ImageIcon />
                         </IconButton>
-                        <MoreVertMenu />
+                        <form onSubmit={sendMessage}>
+                            <input type="text" placeholder="Type your message here ..." value={msgInput} onChange={(e) => setMsgInput(e.target.value)} />
+                            <button type="submit">Send</button>
+                        </form>
+
+                        <IconButton size="small">
+                            <MicIcon />
+                        </IconButton>
                     </div>
                 </div>
-                <div className="chat__body" ref={chatBodyRef}>
-                    {
-                        messages.map(message => (
-                            <div className={"chat__message " + (message.sender.id == user.uid && "chat__receiver")}>
-                                <p className="message__content">
-                                    {message.message}
-                                </p>
-                                <div className="message__info">
-                                    <span className="message__name">{memInfoList.hasOwnProperty(message.sender.id) ? memInfoList[message.sender.id].name : ""}</span>
-                                    <span className="message__timestamp">{
-                                        formatMsgTimeStamp(message.timestamp?.toDate())
-                                    }</span>
-                                </div>
-                            </div>
-                        ))
-                    }
-                </div>
-                <div className="chat__footer">
-                    <IconButton size="small">
-                        <AddReactionIcon />
-                    </IconButton>
-                    <IconButton size="small">
-                        <ImageIcon />
-                    </IconButton>
-                    <form onSubmit={sendMessage}>
-                        <input type="text" placeholder="Type your message here ..." value={msgInput} onChange={(e) => setMsgInput(e.target.value)} />
-                        <button type="submit">Send</button>
-                    </form>
-
-                    <IconButton size="small">
-                        <MicIcon />
-                    </IconButton>
-                </div>
+                <ChatSettings avaSeed={avaSeed} roomName={roomName} memInfoList={memInfoList} roomId={roomId} />
             </div>
+
         </>
     )
 }

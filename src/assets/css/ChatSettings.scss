@@ -1,0 +1,88 @@
+.App .app_body .chat_container .chat_setting {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    max-width: 300px;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+
+    .chat__header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+    .list__chat__members {
+        display: flex;
+        flex-direction: column;
+
+        .section_title_box {
+            display: flex;
+            flex-direction: row;
+            padding: 5px;
+            justify-content: space-between;
+            align-items: center;
+            .right_side_bar_section_title {
+            }
+        }
+        .member__box {
+            display: flex;
+            flex-direction: row;
+            cursor: pointer;
+            border-bottom: 1px solid #f6f6f6;
+            padding: 15px;
+
+            .member__name {
+                text-align: left;
+                padding: 0 10px;
+                h3 {
+                    font-size: 16px;
+                    margin-bottom: 8px;
+                    font-weight: 500;
+                }
+                p {
+                    color: #4a4a4a;
+                    font-style: italic;
+                    font-size: 15px;
+                }
+            }
+        }
+
+        .member__box:hover {
+            background: #ebebeb;
+        }
+    }
+}
+
+.edit_nickname_dialog {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0 20px 0;
+
+    .friend_avatar {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        padding-bottom: 5px;
+    }
+
+    .dialog_title {
+        font-size: 17px;
+        padding: 5px 20px 5px 20px;
+        color: rgb(101, 103, 107);
+        font-style: italic;
+
+        .dialog_title_member_name {
+            // color:rgb(5, 5, 5);
+        }
+    }
+
+    .nickname_input {
+        padding-left: 10px;
+        padding-right: 5px;
+
+        .nickname_textbox {
+            width: 300px;
+        }
+    }
+}
