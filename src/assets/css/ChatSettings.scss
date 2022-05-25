@@ -53,28 +53,33 @@
     }
 }
 
-.edit_nickname_dialog {
+.change_chat_member_settings_dialog {
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 10px 0 20px 0;
 
-    .friend_avatar {
+    .mem_ava_name_container {
         display: flex;
         flex-direction: row;
         justify-content: center;
         padding-bottom: 5px;
+
+        .dialog_member_name {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-left: 10px;
+            font-weight: bold;
+        }
     }
 
     .dialog_title {
         font-size: 17px;
-        padding: 5px 20px 5px 20px;
+        padding: 20px 20px 0 20px;
         color: rgb(101, 103, 107);
         font-style: italic;
-
-        .dialog_title_member_name {
-            // color:rgb(5, 5, 5);
-        }
+        text-align: center;
     }
 
     .nickname_input {
@@ -85,10 +90,31 @@
             width: 300px;
         }
     }
+
+    .change_member_role_container {
+        .change_member_role_form {
+            width: 100%;
+
+            .role_choices_container {
+                display: flex;
+                width: 100%;
+                flex-direction: row;
+                justify-content: center;
+
+                .remove_chat_member_wrapper {
+                }
+            }
+        }
+    }
+
+    .remove_chat_member_container {
+        text-align: center;
+        padding: 18px 10px 10px 10px;
+    }
 }
 
-.confirm_leave_chat_dialog{
-    .dialogText_roomName{
+.confirm_leave_chat_dialog {
+    .dialogText_roomName {
         font-weight: bold;
     }
 }

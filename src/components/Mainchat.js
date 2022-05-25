@@ -56,6 +56,10 @@ function MainChat() {
     const [openChatSettings, setOpenChatSettings] = React.useState(true);
 
     console.log(user)
+    console.log(messages)
+
+    console.log('new room id')
+    console.log(roomId)
 
     useEffect(async () => {
         if (roomId) {
@@ -108,6 +112,9 @@ function MainChat() {
                             memRef: doc.data().memRef
                         }
                     });
+                    
+                    console.log('shit new snap shot')
+                    console.log(querySnapshot)
 
                     Promise.all(listPromise).then((results) => results.map(doc => ({ ...doc.data(), id: doc.id })))
                         .then(results => {
@@ -135,6 +142,8 @@ function MainChat() {
         let msg = msgInput.trim();
         if (msg == '') return;
 
+        // alert('new message ');
+        // alert(msg);
         db.collection("rooms").doc(roomId).collection("messages").add({
             message: msg,
             sender: user.userRef,
@@ -199,7 +208,6 @@ function MainChat() {
                     <div className="chat__body" ref={chatBodyRef}>
                         {
                             messages.map(message => {
-                                console.log('new message ', message)
                                 if (message.type == "text-message")
                                     return (
                                         <div className={"chat__message " + (message.sender.id == user.uid && "chat__receiver")}>
@@ -240,7 +248,6 @@ function MainChat() {
                                         console.log(err);
                                     }
                                 } else if (message.type == "remove-member") {
-                                    console.log('alright cool ', message)
                                     try {
                                         let sender = memInfoList.hasOwnProperty(message.sender.id) ? memInfoList[message.sender.id].name : ""
                                         let receiver = memInfoList.hasOwnProperty(message.receiver.id) ? memInfoList[message.receiver.id].name : ""
@@ -284,6 +291,34 @@ function MainChat() {
                                                 <p className="message__content">{
                                                     message.sender.id != message.receiver.id ? <>{senderText} has added {receiverText} to the chat</>
                                                         : (<>{senderText} has joined the chat</>)
+                                                }
+                                                </p>
+                                                <div className="message__info">
+                                                    <span className="message__timestamp">{
+                                                        formatMsgTimeStamp(message.timestamp?.toDate())
+                                                    }</span>
+                                                </div>
+                                            </div>
+                                        )
+                                    } catch (err) {
+                                        console.log(err);
+                                    }
+                                } else if (message.type == "role-change") {
+                                    try {
+                                        let sender = memInfoList.hasOwnProperty(message.sender.id) ? memInfoList[message.sender.id].name : ""
+                                        let receiver = memInfoList.hasOwnProperty(message.receiver.id) ? memInfoList[message.receiver.id].name : ""
+
+                                        console.log(sender, ' ~ ', receiver);
+                                        if (message.sender.id == user.uid) sender = "You"
+                                        if (message.receiver.id == user.uid) receiver = "you"
+                                        let senderText = (<span className="message__name">{sender}</span>)
+                                        let receiverText = (<span className="message__name">{receiver}</span>)
+
+                                        return (
+                                            <div className="notification_message">
+                                                <p className="message__content">{
+                                                    message.sender.id != message.receiver.id ? <>{senderText} has changed {receiverText}'s role to <b>{message.message}</b></>
+                                                        : (<>{senderText} has changed your role to <b>{message.message}</b></>)
                                                 }
                                                 </p>
                                                 <div className="message__info">
