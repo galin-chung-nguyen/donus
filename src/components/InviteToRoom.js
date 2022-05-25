@@ -37,7 +37,7 @@ function InviteToRoom() {
             if (!joined) {
                 let roomRef = db.collection("rooms").doc(roomId);
                 // now join the room
-                await roomRef.collection('members').add({
+                roomRef.collection('members').doc(user.uid).set({
                     memRef: user.userRef,
                     role: "normal",
                     nickname: user.displayName
@@ -63,6 +63,7 @@ function InviteToRoom() {
             window.location = "/rooms/" + roomId;
         } else {
             alert('You should sign in first!!!');
+            window.location = "/";
         }
     }
 

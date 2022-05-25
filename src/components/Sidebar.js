@@ -161,7 +161,7 @@ function Sidebar() {
             });
 
             // set current user as admin of the new room
-            await newRoomRef.collection('members').add({
+            newRoomRef.collection('members').doc(user.uid).set({
                 memRef: user.userRef,
                 role: "admin",
                 nickname: user.displayName
