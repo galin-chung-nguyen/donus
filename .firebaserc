@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "donus-chat"
-  }
+    "default": "donus-chat",
+    "staging": "donus-chat"
+  },
+  "targets": {},
+  "etags": {}
 }

@@ -1,0 +1,134 @@
+.App .app_body .chat_container .chat_setting {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  max-width: 300px;
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
+
+  .chat__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  .chat_settings_section {
+    display: flex;
+    flex-direction: column;
+
+    .section_title_box {
+      display: flex;
+      flex-direction: row;
+      padding: 5px 5px 5px 15px;
+      justify-content: space-between;
+      align-items: center;
+      .right_side_bar_section_title {
+      }
+    }
+    .member__box {
+      display: flex;
+      flex-direction: row;
+      cursor: pointer;
+      border-bottom: 1px solid #f6f6f6;
+      padding: 15px;
+
+      .member__name {
+        text-align: left;
+        padding: 0 10px;
+        h3 {
+          font-size: 16px;
+          margin-bottom: 8px;
+          font-weight: 500;
+        }
+        p {
+          color: #4a4a4a;
+          font-style: italic;
+          font-size: 15px;
+        }
+      }
+    }
+
+    .member__box:hover {
+      background: #ebebeb;
+    }
+  }
+}
+
+.change_chat_member_settings_dialog {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0 20px 0;
+
+  .mem_ava_name_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding-bottom: 5px;
+
+    .dialog_member_name {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-left: 10px;
+      font-weight: bold;
+    }
+  }
+
+  .dialog_title {
+    font-size: 17px;
+    padding: 20px 20px 0 20px;
+    color: rgb(101, 103, 107);
+    font-style: italic;
+    text-align: center;
+  }
+
+  .nickname_input {
+    padding-left: 10px;
+    padding-right: 5px;
+
+    .nickname_textbox {
+      width: 300px;
+    }
+  }
+
+  .change_member_role_container {
+    .change_member_role_form {
+      width: 100%;
+
+      .role_choices_container {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        justify-content: center;
+
+        .remove_chat_member_wrapper {
+        }
+      }
+    }
+  }
+
+  .remove_chat_member_container {
+    text-align: center;
+    padding: 18px 10px 10px 10px;
+  }
+}
+
+.invite_friend_dialog{
+  .dialog_title{
+    
+  }
+  .invite-link-wrapper{
+    .invite-link{
+    }
+    .copy-invite-link-btn{
+      margin-left: 15px ;
+      cursor: pointer;
+    }
+  }
+}
+
+.confirm_leave_chat_dialog {
+  .dialogText_roomName {
+    font-weight: bold;
+  }
+}
