@@ -10,11 +10,10 @@ import { ChatRoomEntity } from "../aggregates/chat-room.aggregate";
 import useChatRoomData, { ChatRoomWithFullData } from "../hooks/ChatScreen.hook";
 import MainChat from "./Mainchat";
 import NavigationSidebar from "./NavigationSidebar";
-import { useParams } from "next/navigation";
+import { useRouter } from "next/router";
 
 export default function ChatScreen() {
-  const params = useParams();
-  const roomId: string = params.roomId as string;
+const roomId: string = useRouter().query.roomId as string;
   const user: User | null = useSelector<RootState, User | null>((state) => state.userInfo.value);
 
   const dispatch = useDispatch();
@@ -23,7 +22,6 @@ export default function ChatScreen() {
   const { roomEntity }: { roomEntity: ChatRoomWithFullData | null } = useChatRoomData(user, roomId);
 
   // hooks
-
   useEffect(() => {
     // toast.success(
     //   (t) => (

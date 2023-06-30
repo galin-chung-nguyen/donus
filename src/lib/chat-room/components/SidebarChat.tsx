@@ -1,4 +1,3 @@
-import "@/chat-room/css/SidebarChat.scss";
 import { Avatar } from "@mui/material";
 
 import db from "../../firebase/firebase-config";

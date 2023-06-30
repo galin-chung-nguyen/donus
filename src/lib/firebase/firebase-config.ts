@@ -14,6 +14,8 @@ const firebaseConfig = {
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 };
 
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+
 const firebaseApp = initializeApp(firebaseConfig);
 const firestoreDb = getFirestore(firebaseApp);
 const firebaseAuth = getAuth(firebaseApp);

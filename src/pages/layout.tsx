@@ -1,7 +1,4 @@
-import "./globals.css";
-import "@/app/App.scss";
 import { Inter } from "next/font/google";
-import Providers from "@/app/redux/provider";
 // import storeWrapper from "@/app/redux/reduxStore";
 // import useLoadUserData from "@/app/hooks/LoadUserData";
 
@@ -19,10 +16,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers>
-          {children}
-          <Toaster position="bottom-left" reverseOrder={false} />
-        </Providers>
+        {children}
+        <Toaster position="bottom-left" reverseOrder={false} />
       </body>
     </html>
   );

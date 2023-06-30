@@ -1,4 +1,3 @@
-import "@/chat-room/css/ChatSettings.scss";
 import React, { useState, useEffect } from "react";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";

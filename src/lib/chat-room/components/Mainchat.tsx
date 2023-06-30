@@ -1,4 +1,3 @@
-import "@/chat-room/css/Mainchat.scss";
 import React, { useState, useEffect, useRef, ReactElement } from "react";
 
 import { Avatar, IconButton } from "@mui/material";
@@ -23,7 +22,7 @@ import { MessageEntity, MessageType } from "../aggregates/message.aggregate";
 import { ReferenceString } from "@/app/types/ref-string.type";
 import { DateTypeToDate } from "@/app/utils/date.type";
 import ChatSettings from "./ChatSettings";
-import { useParams } from "next/navigation";
+import { useRouter } from "next/router";
 // import ChatSettings from "./ChatSettings";
 
 const MainChatHeader = ({ roomId, roomName, openChatSettings, setOpenChatSettings }: any) => {
@@ -311,8 +310,7 @@ const MainChatBody = ({
   );
 };
 function MainChat({ roomEntity }: { roomEntity: ChatRoomWithFullData | null }) {
-  const params = useParams();
-  const roomId: string = params.roomId as string;
+  const roomId: string = useRouter().query.roomId as string;
 
   const [messageInput, setMessageInput] = useState("");
   const chatBodyRef: React.RefObject<HTMLHeadingElement> = useRef<HTMLHeadingElement>(null);

@@ -1,5 +1,4 @@
-"use client";
-import "@/user/css/Login.scss";
+// "use client";
 import Button from "@mui/material/Button";
 import firebase from "firebase/compat/app";
 import {

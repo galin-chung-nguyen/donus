@@ -1,4 +1,3 @@
-import "@/chat-room/css/InviteToRoom.scss";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
@@ -25,15 +24,14 @@ import { ChatRoomEntity } from "../aggregates/chat-room.aggregate";
 import { UserEntity } from "@/user/aggregates/user.aggregate";
 import { MessageEntity, MessageType } from "../aggregates/message.aggregate";
 import toast from "react-hot-toast";
-import { useParams } from "next/navigation";
+import { useRouter } from "next/router";
 
 type UrlParam = {
   roomId: string;
 };
 
 function InviteToRoom() {
-  const params = useParams();
-  const roomId: string = params.roomId as string;
+  const roomId: string = useRouter().query.roomId as string;
   const user: User | null = useSelector<RootState, User | null>((state) => state.userInfo.value);
 
   const { roomEntity }: { roomEntity: ChatRoomEntity | null } = useChatRoomEntity(roomId);

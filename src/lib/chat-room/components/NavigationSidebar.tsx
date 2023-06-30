@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import "@/chat-room/css/NavigationSidebar.scss";
 import { Avatar, IconButton } from "@mui/material";
 import ChatIcon from "@mui/icons-material/Chat";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
