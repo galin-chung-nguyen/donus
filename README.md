@@ -1,34 +1,116 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Donus
 
-## Getting Started
+<!--- These are examples. See https://shields.io for others or to customize this set of shields. You might want to include dependencies, project status and licence info here --->
+![GitHub repo size](https://img.shields.io/github/repo-size/galin-chung-nguyen/donus)
+![GitHub contributors](https://img.shields.io/github/contributors/galin-chung-nguyen/donus)
+![GitHub stars](https://img.shields.io/github/stars/galin-chung-nguyen/donus?style=social)
+![GitHub forks](https://img.shields.io/github/forks/galin-chung-nguyen/donus?style=social)
+<!-- ![Twitter Follow](https://img.shields.io/twitter/follow/scottydocs?style=social) -->
 
-First, run the development server:
+Donus is a free web-based messaging app for everyone. It is built using React, Redux and Firebase cloud storage. You can use it to make chat group with your friends, send and receive messages instantly, or do cool things with it. Feel free to discover and enjoy it!
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+## Live demo
+
+You can use the Donus app here: https://donus-chat.web.app/
+
+
+![Login screen](./src/app/images/demoScreen_logIn.png)
+
+#### Chat
+
+![Chat](./src/app/images/chat.png)
+
+#### Invite new friends to the chat
+
+![Invite new friends to the chat](./src/app/images/invite-friend.png)
+
+#### Join a chat
+
+![Join a chat](./src/app/images/inviteScreen.png)
+
+#### Chat member settings
+
+![Chat member settings](./src/app/images/change-role.png)
+
+## Installing Donus
+
+To install Donus, use this command:
+
+```
+npm install
+
+or
+
+yarn install
+```
+## Using Donus
+
+To run Donus, use this command:
+
+```
+npm run start
+
+or 
+
+yarn start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Contributing to Donus
+<!--- If your README is long or you have some specific process or steps you want contributors to follow, consider creating a separate CONTRIBUTING.md file--->
+To contribute to Donus, follow these steps:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Fork this repository.
+2. Create a branch: `git checkout -b <branch_name>`.
+3. Make your changes and commit them: `git commit -m '<commit_message>'`
+4. Push to the original branch: `git push origin Donus/<location>`
+5. Create the pull request.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Alternatively see the GitHub documentation on [creating a pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
 
-## Learn More
+<!-- ## Contributors
 
-To learn more about Next.js, take a look at the following resources:
+Thanks to the following people who have contributed to this project:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+* [@scottydocs](https://github.com/scottydocs) 📖
+* [@cainwatson](https://github.com/cainwatson) 🐛
+* [@calchuchesta](https://github.com/calchuchesta) 🐛
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+You might want to consider using something like the [All Contributors](https://github.com/all-contributors/all-contributors) specification and its [emoji key](https://allcontributors.org/docs/en/emoji-key). -->
 
-## Deploy on Vercel
+## Contact
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+If you want to contact me you can reach me at [Linkedin](https://www.linkedin.com/in/galin-chung-nguyen/).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### **Have a good day!**
+
+<!-- ## License
+
+This project uses the following license: [<license_name>](<link>). -->
+<!-- # Donus
+
+Donus is a free web-based messaging app for everyone. It's built using React, Redux and Firebase storage. You can use it to make chat group with your friends, send and receive messages instantly, do cool things with it. Feel free to discover and enjoy it!
+
+#### Login screen
+
+![Login screen](./src/app/images/demoScreen_logIn.png)
+
+#### Chat
+
+![Chat](./src/app/images/chat.png)
+
+#### Invite new friends to the chat
+
+![Invite new friends to the chat](./src/app/images/invite-friend.png)
+
+#### Join a chat
+
+![Join a chat](./src/app/images/inviteScreen.png)
+
+#### Chat member settings
+
+![Chat member settings](./src/app/images/change-role.png)
+
+You can check it out here: https://donus-chat.web.app/
+
+### **Have a good day!**
+ -->
